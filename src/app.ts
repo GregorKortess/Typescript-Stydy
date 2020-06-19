@@ -1,3 +1,51 @@
+// Validation
+interface Validatable {
+  value: string | number;
+  required?: boolean;
+  minLength?: number;
+  maxLength?: number;
+  min?: number;
+  max?: number;
+}
+
+function validate(validatebleInput: Validatable) {
+  let isValid = true;
+  if (validatebleInput.required) {
+    isValid = isValid && validatebleInput.value.toString().trim().length !== 0;
+  }
+  if (
+    validatebleInput.minLength != null &&
+    typeof validatebleInput.value === "string"
+  ) {
+    isValid =
+      isValid && validatebleInput.value.length >= validatebleInput.minLength;
+  }
+
+  if (
+    validatebleInput.maxLength != null &&
+    typeof validatebleInput.value === "string"
+  ) {
+    isValid =
+      isValid && validatebleInput.value.length <= validatebleInput.maxLength;
+  }
+
+  if (
+    validatebleInput.min != null &&
+    typeof validatebleInput.value === "number"
+  ) {
+    isValid = isValid && validatebleInput.value >= validatebleInput.min;
+  }
+
+  if (
+    validatebleInput.max != null &&
+    typeof validatebleInput.value === "number"
+  ) {
+    isValid = isValid && validatebleInput.value <= validatebleInput.max;
+  }
+
+  return isValid;
+}
+
 // autobind Decorator
 function autobind(_: any, _2: string, descriptor: PropertyDescriptor) {
   const originalMethod = descriptor.value;
@@ -52,10 +100,28 @@ class ProjectInput {
     const enteredDescription = this.descriptionInputElement.value;
     const enteredPeople = this.peopleInputElement.value;
 
+    const titleValidatable: Validatable = {
+      value: enteredTitle,
+      required: true,
+    };
+
+    const descriptionValidatable: Validatable = {
+      value: enteredDescription,
+      required: true,
+      minLength: 5,
+    };
+
+    const peopleValidatable: Validatable = {
+      value: +enteredPeople,
+      required: true,
+      min: 1,
+      max: 5,
+    };
+
     if (
-      enteredTitle.length === 0 ||
-      enteredDescription.length === 0 ||
-      enteredPeople.length === 0
+      !validate(titleValidatable) ||
+      !validate(descriptionValidatable) ||
+      !validate(peopleValidatable)
     ) {
       alert("Invalid input !");
       return;
